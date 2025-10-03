@@ -1,0 +1,207 @@
+/* === RESET === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* === BODY & LAYOUT === */
+body {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa, #e4ecf7);
+  color: #333;
+}
+
+.dashboard {
+  display: flex;
+  width: 100%;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+  width: 240px;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* === CONTENT === */
+.content {
+  flex: 1;
+  padding: 30px;
+}
+
+/* === TOPBAR === */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.topbar h1 {
+  font-size: 1.8rem;
+  color: #222;
+}
+
+.badge {
+  background: #2575fc;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+}
+
+/* === CARDS === */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+/* === FORM === */
+form {
+  display: grid;
+  gap: 15px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #555;
+}
+
+input, textarea, select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 6px;
+  font-size: 0.95rem;
+  transition: border 0.3s;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #2575fc;
+}
+
+/* === BUTTONS === */
+.btn {
+  display: inline-block;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+}
+
+.btn.primary:hover {
+  opacity: 0.9;
+}
+
+.btn.danger {
+  background: #e63946;
+  color: #fff;
+}
+
+.btn.danger:hover {
+  background: #c92a38;
+}
+
+/* === TABLES === */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 0.95rem;
+}
+
+.table th, .table td {
+  border: 1px solid #eee;
+  padding: 10px;
+  text-align: center;
+}
+
+.table th {
+  background: #f0f4f8;
+  font-weight: 600;
+  color: #444;
+}
+
+.table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.table tr:hover {
+  background: #f1f8ff;
+}
+
+/* === GRID SYSTEM === */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.grid-span-4 {
+  grid-column: span 4;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    padding: 10px;
+  }
+  .sidebar .brand {
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+  .sidebar nav a {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
