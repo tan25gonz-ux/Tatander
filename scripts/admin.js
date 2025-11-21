@@ -1,155 +1,153 @@
-import { auth, db } from "../firebase.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-import { collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-import { getWeekRangeMondayToMonday, formatMoney, formatDate, formatDateTime } from "./utils.js";
+// admin.js
+import {
+  crearCliente, listarClientes, crearPrestamo,
+  listarPrestamosActivos, obtenerPrestamo, listarPagosPorPrestamo,
+  registrarPago, actualizarPrestamo, onAuthChange, logout, loginCobrador
+} from "./firebase.js";
 
-const ADMIN_EMAIL = "tan25gonz@gmail.com";
+const DEFAULT_INTERES = 15;
 
-// UI
-const btnLogout = document.getElementById('btnLogout');
-const weekRangeEl = document.getElementById('weekRange');
-const tablaResumenBody = document.querySelector('#tablaResumen tbody');
-const tablaDetalleBody = document.querySelector('#tablaDetalle tbody');
-const kpiBrutas = document.getElementById('kpiBrutas');
-const kpiPremios = document.getElementById('kpiPremios');
-const kpiNeto = document.getElementById('kpiNeto');
-const prevWeekBtn = document.getElementById('prevWeek');
-const nextWeekBtn = document.getElementById('nextWeek');
-const btnExcel = document.getElementById('btnExcel');
-const btnPDF = document.getElementById('btnPDF');
+// DOM
+const selectCliente = document.getElementById("select-cliente");
+const btnCrearCliente = document.getElementById("btn-crear-cliente");
+const inputNombre = document.getElementById("cliente-nombre");
+const inputTelefono = document.getElementById("cliente-telefono");
+const inputDireccion = document.getElementById("cliente-direccion");
 
-// Semana actual
-let currentMonday = getWeekRangeMondayToMonday().start;
+const prestamoMonto = document.getElementById("prestamo-monto");
+const prestamoInteres = document.getElementById("prestamo-interes");
+const prestamoCuota = document.getElementById("prestamo-cuota");
+const btnCrearPrestamo = document.getElementById("btn-crear-prestamo");
 
-function setWeekLabel(){
-  const start = new Date(currentMonday);
-  start.setHours(0,0,0,0);
-  const end = new Date(start.getTime()+7*86400000);
-  end.setHours(0,0,0,0);
-  weekRangeEl.textContent = `Semana: ${formatDate(start)} → ${formatDate(end)} (lunes a lunes)`;
+const tablaPrestamosBody = document.querySelector("#tabla-prestamos tbody");
+const historialPagos = document.getElementById("historial-pagos");
+
+const totalPrestadoEl = document.getElementById("total-prestado");
+const totalRecuperadoEl = document.getElementById("total-recuperado");
+const totalPendienteEl = document.getElementById("total-pendiente");
+
+const btnLogout = document.getElementById("btn-logout");
+
+// Inicial
+let clientesCache = [];
+async function init(){
+  await cargarClientes();
+  await cargarPrestamos();
 }
+init();
 
-prevWeekBtn.addEventListener('click', ()=>{
-  currentMonday = new Date(currentMonday.getTime() - 7*86400000);
-  refresh();
-});
-nextWeekBtn.addEventListener('click', ()=>{
-  currentMonday = new Date(currentMonday.getTime() + 7*86400000);
-  refresh();
-});
-
-btnLogout.addEventListener('click', async ()=>{
-  await signOut(auth);
-  window.location.href = 'index.html';
+btnCrearCliente.addEventListener("click", async () => {
+  const nombre = inputNombre.value.trim();
+  if(!nombre) return alert("Nombre requerido");
+  await crearCliente({ nombre, telefono: inputTelefono.value, direccion: inputDireccion.value });
+  inputNombre.value = ""; inputTelefono.value = ""; inputDireccion.value = "";
+  await cargarClientes();
+  alert("Cliente creado");
 });
 
-// Solo admin
-onAuthStateChanged(auth, async (user)=>{
-  if (!user){ window.location.href='index.html'; return; }
-  if (user.email !== ADMIN_EMAIL){
-    alert('Acceso solo para administrador');
-    window.location.href = 'vendedor.html';
-    return;
-  }
-  setWeekLabel();
-  await refresh();
-});
-
-async function refresh(){
-  const start = new Date(currentMonday); start.setHours(0,0,0,0);
-  const end = new Date(currentMonday.getTime()+7*86400000); end.setHours(0,0,0,0);
-
-  setWeekLabel();
-
-  const sorteos = await getSorteosEnRango(start, end);
-
-  renderDetalle(sorteos);
-
-  const { resumen, totales } = calcularResumen(sorteos);
-  renderResumen(resumen, totales);
-}
-
-async function getSorteosEnRango(start, end){
-  const qy = query(
-    collection(db,'sorteos'),
-    where('fechaSorteo','>=', start),
-    where('fechaSorteo','<', end),
-    orderBy('fechaSorteo','asc')
-  );
-  const snap = await getDocs(qy);
-  const list = [];
-  snap.forEach(d=>{
-    const s = d.data();
-    const f = s.fechaSorteo?.toDate ? s.fechaSorteo.toDate() : new Date();
-    list.push({ ...s, fechaDate: f });
+async function cargarClientes(){
+  clientesCache = await listarClientes();
+  selectCliente.innerHTML = "";
+  clientesCache.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.nombre;
+    selectCliente.appendChild(opt);
   });
-  return list;
 }
 
-function calcularResumen(sorteos){
-  const resumen = {};
-  let totalBrutas=0, totalPremios=0, totalNeto=0;
+btnCrearPrestamo.addEventListener("click", async () => {
+  const clienteId = selectCliente.value;
+  const monto = prestamoMonto.value.trim();
+  if (!clienteId) return alert("Selecciona un cliente");
+  if (!monto || isNaN(Number(monto))) return alert("Monto inválido");
+  const interes = prestamoInteres.value.trim() ? Number(prestamoInteres.value) : DEFAULT_INTERES;
+  const cuota = prestamoCuota.value.trim() ? Number(prestamoCuota.value) : null;
+  await crearPrestamo({ clienteId, monto: Number(monto), interes, cuota, frecuencia: "manual" });
+  prestamoMonto.value = ""; prestamoInteres.value = ""; prestamoCuota.value = "";
+  await cargarPrestamos();
+  alert("Préstamo creado");
+});
 
-  for(const s of sorteos){
-    const id = s.vendedorId;
-    if(!resumen[id]){
-      resumen[id] = {
-        vendedorId: id,
-        vendedorNombre: s.vendedorNombre || id,
-        brutas: 0,
-        premios: 0,
-        comisionPct: 16, // fijo
-        neto: 0
-      };
-    }
-    resumen[id].brutas += Number(s.totalVendido || 0);
-    resumen[id].premios += Number(s.premioMonto || 0);
+async function cargarPrestamos(){
+  const prestamos = await listarPrestamosActivos();
+  tablaPrestamosBody.innerHTML = "";
+  let totalPrestado = 0, totalPendiente = 0, totalRecuperado = 0;
+  for (const p of prestamos) {
+    // obtener cliente
+    const cliente = clientesCache.find(c => c.id === p.cliente_id) || { nombre: "Cliente desconocido" };
+    totalPrestado += Number(p.monto || 0);
+    totalPendiente += Number(p.saldo_pendiente || 0);
+    totalRecuperado += (Number(p.total_a_pagar || 0) - Number(p.saldo_pendiente || 0));
 
-    totalBrutas += Number(s.totalVendido || 0);
-    totalPremios += Number(s.premioMonto || 0);
-  }
-
-  for(const id in resumen){
-    const r = resumen[id];
-    const comision = r.brutas * 0.16;
-    r.neto = r.brutas - r.premios - comision;
-    totalNeto += r.neto;
-  }
-
-  return { resumen, totales: { totalBrutas, totalPremios, totalNeto } };
-}
-
-function renderResumen(resumen, totales){
-  tablaResumenBody.innerHTML = '';
-  Object.values(resumen).forEach(r=>{
-    const tr = document.createElement('tr');
+    const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${r.vendedorNombre}</td>
-      <td>${formatMoney(r.brutas)}</td>
-      <td>${r.comisionPct}%</td>
-      <td>${formatMoney(r.premios)}</td>
-      <td>${formatMoney(r.neto)}</td>
+      <td>${cliente.nombre}</td>
+      <td>₡ ${Number(p.monto).toLocaleString()}</td>
+      <td>₡ ${Number(p.total_a_pagar).toLocaleString()}</td>
+      <td>₡ ${Number(p.saldo_pendiente).toLocaleString()}</td>
+      <td>${p.interes}%</td>
+      <td>
+        <div class="actions">
+          <button class="btn ver" data-id="${p.id}">Ver</button>
+          <button class="btn ghost pagar" data-id="${p.id}">Registrar pago</button>
+          <button class="btn ghost cerrar" data-id="${p.id}">Cerrar</button>
+        </div>
+      </td>
     `;
-    tablaResumenBody.appendChild(tr);
-  });
+    tablaPrestamosBody.appendChild(tr);
+  }
+  totalPrestadoEl.textContent = `₡ ${totalPrestado.toLocaleString()}`;
+  totalPendienteEl.textContent = `₡ ${totalPendiente.toLocaleString()}`;
+  totalRecuperadoEl.textContent = `₡ ${totalRecuperado.toLocaleString()}`;
 
-  kpiBrutas.textContent = formatMoney(totales.totalBrutas);
-  kpiPremios.textContent = formatMoney(totales.totalPremios);
-  kpiNeto.textContent = formatMoney(totales.totalNeto);
+  // listeners botones
+  document.querySelectorAll(".ver").forEach(b => b.addEventListener("click", async (e) => {
+    const id = e.target.dataset.id;
+    const p = await obtenerPrestamo(id);
+    mostrarHistorial(p);
+  }));
+
+  document.querySelectorAll(".pagar").forEach(b => b.addEventListener("click", async (e) => {
+    const id = e.target.dataset.id;
+    const monto = prompt("Monto pagado (ej: 3000):");
+    if (!monto || isNaN(Number(monto))) return alert("Monto inválido");
+    const cobrador = prompt("Nombre del cobrador (opcional):") || "Cobrador";
+    await registrarPago({ prestamoId: id, monto: Number(monto), cobrador });
+    await cargarPrestamos();
+    alert("Pago registrado");
+  }));
+
+  document.querySelectorAll(".cerrar").forEach(b => b.addEventListener("click", async (e) => {
+    const id = e.target.dataset.id;
+    if (!confirm("¿Seguro quieres forzar cierre del préstamo? se pondrá saldo 0")) return;
+    await actualizarPrestamo(id, { saldo_pendiente: 0, estado: "cerrado" });
+    await cargarPrestamos();
+  }));
 }
 
-function renderDetalle(sorteos){
-  tablaDetalleBody.innerHTML = '';
-  sorteos.forEach(s=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${formatDateTime(s.fechaDate)}</td>
-      <td>${s.vendedorNombre || s.vendedorId}</td>
-      <td>${s.nombreSorteo}</td>
-      <td>${formatMoney(s.totalVendido)}</td>
-      <td>${s.premioNumero || '-'}</td>
-      <td>${s.premioMonto ? formatMoney(s.premioMonto) : '-'}</td>
-    `;
-    tablaDetalleBody.appendChild(tr);
-  });
+async function mostrarHistorial(prestamo) {
+  const pagos = await listarPagosPorPrestamo(prestamo.id);
+  historialPagos.innerHTML = `
+    <div class="card"><strong>Préstamo de:</strong> ${prestamo.cliente_id} | Monto: ₡ ${Number(prestamo.monto).toLocaleString()} | Saldo: ₡ ${Number(prestamo.saldo_pendiente).toLocaleString()}</div>
+    <table class="table"><thead><tr><th>Fecha</th><th>Monto</th><th>Cobrador</th></tr></thead>
+    <tbody>
+      ${pagos.map(p=>`<tr><td>${p.fecha}</td><td>₡ ${Number(p.monto).toLocaleString()}</td><td>${p.cobrador||'-'}</td></tr>`).join("")}
+    </tbody></table>
+  `;
 }
+
+// LOGOUT (si hay sesión)
+btnLogout.addEventListener("click", async () => {
+  try { await logout(); alert("Sesión cerrada"); } catch(e){ console.error(e); alert("Error al cerrar sesión"); }
+});
+
+// opcional: puedes vigilar estado auth (por ejemplo, forzar login)
+onAuthChange(user => {
+  if (!user) {
+    // si no hay sesión se puede permitir admin local o redirigir
+    // console.log("No hay usuario autenticado");
+  } else {
+    // console.log("Cobrador autenticado:", user.email);
+  }
+});
