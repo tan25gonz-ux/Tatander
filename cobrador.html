@@ -1,35 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
   <title>Cobrador - Tatander</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <h2>Cobrador - Iniciar sesión</h2>
-      <input id="login-email" class="input" placeholder="Email" />
-      <input id="login-password" type="password" class="input" placeholder="Contraseña" style="margin-top:8px" />
-      <div style="margin-top:8px" class="actions">
-        <button id="btn-login" class="btn">Entrar</button>
-        <button id="btn-crear-cuenta" class="btn ghost">Crear cuenta (solo admin)</button>
-      </div>
-    </div>
-
-    <div id="app" style="display:none">
-      <div class="header">
-        <div class="brand"><h1>Lista de clientes</h1></div>
-        <div class="actions">
-          <button id="btn-logout" class="btn ghost">Salir</button>
-        </div>
-      </div>
-
-      <div id="lista-clientes" class="card"></div>
-    </div>
-  </div>
-
-  <script type="module" src="cobrador.js"></script>
+  <script type="module" src="scripts/cobrador.js"></script>
 </body>
 </html>
