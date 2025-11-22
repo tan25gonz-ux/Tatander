@@ -1,9 +1,7 @@
-// firebase.js — configuración de Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-/* Tu configuración real (correcta) */
 const firebaseConfig = {
   apiKey: "AIzaSyBTSuixpTkky24vc4oWyu15XUrKuN99K4s",
   authDomain: "tienda-70955.firebaseapp.com",
@@ -14,9 +12,7 @@ const firebaseConfig = {
   measurementId: "G-162DKFV890"
 };
 
-// Inicializar
 const app = initializeApp(firebaseConfig);
 
-// Exportar servicios
 export const db = getFirestore(app);
 export const auth = getAuth(app);
