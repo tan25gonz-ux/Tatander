@@ -1,11 +1,11 @@
-/* style.css - tema limpio, responsive */
-:root{
+:root {
   --bg:#f4f7f6;
   --card:#ffffff;
   --accent:#1e8022;
   --muted:#6b6b6b;
 }
-*{box-sizing:border-box}
+
+*{box-sizing:border-box;}
 body{
   margin:0;
   font-family:Inter,Arial,Helvetica,sans-serif;
@@ -25,32 +25,46 @@ body{
   margin-bottom:18px;
 }
 .brand{
-  display:flex;align-items:center;gap:12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
-.brand h1{margin:0;font-size:20px;color:var(--accent)}
+.brand h1{
+  margin:0;
+  font-size:20px;
+  color:var(--accent);
+}
 .card{
   background:var(--card);
   border-radius:10px;
   padding:16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow:0 4px 12px rgba(0,0,0,0.06);
   margin-bottom:16px;
 }
-.flex{display:flex;gap:12px;align-items:center}
-.grid{display:grid;gap:12px}
-.grid-3{grid-template-columns:repeat(3,1fr)}
-.table{width:100%;border-collapse:collapse}
-.table th, .table td{padding:8px;border-bottom:1px solid #eee;font-size:14px}
+.flex{display:flex;gap:12px;align-items:center;}
+.grid{display:grid;gap:12px;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.table{width:100%;border-collapse:collapse;}
+.table th, .table td{padding:8px;border-bottom:1px solid #eee;font-size:14px;}
 .btn{
   background:var(--accent);
-  color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
 }
-.btn.ghost{background:transparent;color:var(--accent);border:1px solid #e6e6e6}
-.small{font-size:13px;color:var(--muted)}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid #e6e6e6;}
+.small{font-size:13px;color:var(--muted);}
 .input, textarea, select{
-  width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;font-size:14px
+  width:100%;
+  padding:8px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  font-size:14px;
 }
-.actions{display:flex;gap:8px}
+.actions{display:flex;gap:8px;}
 @media (max-width:700px){
-  .grid-3{grid-template-columns:1fr}
-  .header{flex-direction:column;align-items:flex-start}
+  .grid-3{grid-template-columns:1fr;}
+  .header{flex-direction:column;align-items:flex-start;}
 }
