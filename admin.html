@@ -1,81 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
   <title>Admin - Préstamos Tatander</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="brand">
-        <h1>Tatander - Admin</h1>
-        <div class="small">Panel de control</div>
-      </div>
-      <div class="actions">
-        <button id="btn-logout" class="btn ghost">Cerrar sesión</button>
-      </div>
-    </div>
-
-    <div class="card" id="dashboard">
-      <h3>Dashboard</h3>
-      <div class="grid grid-3" style="margin-top:12px">
-        <div class="card">
-          <div class="small">Total prestado</div>
-          <div id="total-prestado">₡ 0</div>
-        </div>
-        <div class="card">
-          <div class="small">Total recuperado</div>
-          <div id="total-recuperado">₡ 0</div>
-        </div>
-        <div class="card">
-          <div class="small">Total pendiente</div>
-          <div id="total-pendiente">₡ 0</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Registrar cliente</h3>
-      <div style="margin-top:8px">
-        <input id="cliente-nombre" class="input" placeholder="Nombre completo" />
-        <input id="cliente-telefono" class="input" placeholder="Teléfono (opcional)" style="margin-top:8px" />
-        <input id="cliente-direccion" class="input" placeholder="Dirección (opcional)" style="margin-top:8px" />
-        <div style="margin-top:8px" class="actions">
-          <button id="btn-crear-cliente" class="btn">Crear cliente</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Crear préstamo</h3>
-      <div style="margin-top:8px">
-        <select id="select-cliente" class="input"></select>
-        <input id="prestamo-monto" class="input" placeholder="Monto (ej: 50000)" style="margin-top:8px" />
-        <input id="prestamo-interes" class="input" placeholder="Interés (%) - por defecto 15" style="margin-top:8px" />
-        <input id="prestamo-cuota" class="input" placeholder="Cuota (opcional) - deja vacío para pagos manuales" style="margin-top:8px" />
-        <div style="margin-top:8px" class="actions">
-          <button id="btn-crear-prestamo" class="btn">Crear préstamo</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Préstamos activos</h3>
-      <table class="table" id="tabla-prestamos">
-        <thead><tr><th>Cliente</th><th>Monto</th><th>Total</th><th>Saldo</th><th>Interés</th><th>Acciones</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <h3>Historial de pagos (Selecciona un préstamo)</h3>
-      <div id="historial-pagos"><div class="small">No hay préstamo seleccionado</div></div>
-    </div>
-
-  </div>
-
-  <script type="module" src="admin.js"></script>
+  <script type="module" src="scripts/admin.js"></script>
 </body>
 </html>
